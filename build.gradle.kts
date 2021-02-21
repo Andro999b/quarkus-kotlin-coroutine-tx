@@ -8,17 +8,19 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/Andro999b/quarkus-kotlin-coroutine-tx")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITPKG_USER")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITPKG_TOKEN")
-        }
-    }
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Andro999b/quarkus-kotlin-coroutine-tx")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITPKG_USER")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITPKG_TOKEN")
+            }
+        }
+    }
     publications {
         create<MavenPublication>("gpr") {
             from(components["java"])
@@ -58,7 +60,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-junit5")
 }
 
-group = "hatis"
+group = "io.hatis"
 version = "0.0.1"
 
 java {
