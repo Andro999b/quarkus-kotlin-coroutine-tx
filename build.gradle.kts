@@ -3,27 +3,37 @@ plugins {
     kotlin("plugin.allopen") version "1.4.30"
     id("io.quarkus")
     id("maven-publish")
+    id("com.jfrog.bintray") version "1.8.4"
 }
 
 repositories {
-    mavenLocal()
+    jcenter()
     mavenCentral()
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Andro999b/quarkus-kotlin-coroutine-tx")
-            credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("GITPKG_USER")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("GITPKG_TOKEN")
-            }
+    publications {
+        create<MavenPublication>("bintray") {
+            from(components["java"])
         }
     }
-    publications {
-        create<MavenPublication>("gpr") {
-            from(components["java"])
+    bintray {
+        user = project.findProperty("bintray.user") as String? ?: System.getenv("BINTRAY_USER")
+        key = project.findProperty("bintray.key") as String? ?: System.getenv("BINTRAY_KEy")
+        publish = true
+
+        setPublications("bintray")
+
+        pkg.apply {
+            repo = "maven"
+            githubRepo = "Andro999b/quarkus-kotlin-coroutine-tx"
+            vcsUrl = "https://github.com/Andro999b/quarkus-kotlin-coroutine-tx"
+            name = project.name
+            setLicenses("MIT")
+
+            version.apply {
+                name = project.version.toString()
+            }
         }
     }
 }
@@ -58,6 +68,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-flyway")
     testImplementation("io.quarkus:quarkus-reactive-pg-client")
     testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.smallrye.reactive:smallrye-mutiny-vertx-sql-client-templates:2.1.1")
 }
 
 group = "io.hatis"

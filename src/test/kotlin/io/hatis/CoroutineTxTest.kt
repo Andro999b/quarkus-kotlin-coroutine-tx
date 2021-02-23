@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
+class BreakTxException: RuntimeException()
+
 @QuarkusTest
 @QuarkusTestResource(PgResource::class)
 class CoroutineTxTest {
@@ -44,17 +46,18 @@ class CoroutineTxTest {
 
     @Test
     fun testRollback() {
-        Assertions.assertThrows(RuntimeException::class.java) {
+        Assertions.assertThrows(BreakTxException::class.java) {
             CoroutineTxActions(pool).withTxUni {
                 withContext(Dispatchers.IO) {
                     CoroutineTxActions.inTransaction {
+
                         it.preparedQuery("insert into test(value) values($1)")
                             .execute(Tuple.tuple().addString("test"))
                             .awaitSuspending()
                     }
                 }
                 
-                throw RuntimeException("test")
+                throw BreakTxException()
             }.await().indefinitely()
         }
 
